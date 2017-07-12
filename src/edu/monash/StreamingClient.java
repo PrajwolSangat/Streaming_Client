@@ -64,14 +64,14 @@ public class StreamingClient {
         Scanner sc = null;
         Integer streamCounter = 0;
         try {
+            Socket clientSocket = new Socket("localhost", 4000);
+            OutputStream outputStream = clientSocket.getOutputStream();
+            DataOutputStream outToServer = new DataOutputStream(outputStream);
 
             File file = new File(filePath);
             sc = new Scanner(file);
             while (sc.hasNextLine()) {
                 //clientSocket.setKeepAlive(true);
-                Socket clientSocket = new Socket("localhost", 4000);
-                OutputStream outputStream = clientSocket.getOutputStream();
-                DataOutputStream outToServer = new DataOutputStream(outputStream);
                 String[] values = sc.nextLine().split(" ");
                 String dataToSend = streamName + ":" + values[0] + ":" + values[1] + ":" + algorithm;
                 outToServer.writeBytes(dataToSend + '\n');
@@ -83,8 +83,7 @@ public class StreamingClient {
                  * String modifiedSentence = inFromServer.readLine();
                  * System.out.println(modifiedSentence);
                  */
-                // clientSocket..close();
-                Thread.sleep(timeToHold);
+//                Thread.sleep(timeToHold);
 //                streamCounter++;
 //                if (streamCounter >= streamRate) {
 //                    System.out.println("[" + new Date() + "] Number of data sent: " + streamCounter);
@@ -93,7 +92,7 @@ public class StreamingClient {
 //                    System.out.println("[" + new Date() + "] Resetting the count");
 //                }
             }
-
+            clientSocket.close();
         } catch (Exception ex) {
             System.out.println(ex.toString());
         } finally {
