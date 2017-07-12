@@ -11,8 +11,9 @@ import java.util.Scanner;
  * Created by psangats on 7/07/2017.
  */
 public class StreamingClient {
-    // String dataDirectory = "C:\\Raw_Data_Source_For_Test\\StreamingAlgorithmTestData\\CA_RandomSF\\500000\\";
-    String dataDirectory = "C:\\Raw_Data_Source_For_Test\\StreamingAlgorithmTestData\\";
+
+    String dataDirectory = "TestData\\";
+    //String dataDirectory = "C:\\Raw_Data_Source_For_Test\\StreamingAlgorithmTestData\\";
     //    String streamRFile = dataDirectory + "rStream.txt";
 //    String streamSFile = dataDirectory + "sStream.txt";
 //    String streamTFile = dataDirectory + "tStream.txt";
