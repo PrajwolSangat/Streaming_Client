@@ -3,9 +3,9 @@ package edu.monash;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.net.Socket;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by psangats on 7/07/2017.
@@ -29,12 +29,10 @@ public class StreamingClient {
                 /**
                  * Reading Strategy : Random
                  */
-
-                Thread threadS = new Thread(() -> readFromFile(streamSFile, "S", algorithm, streamRate, 20));
-                threadS.start();
-
                 Thread threadR = new Thread(() -> readFromFile(streamRFile, "R", algorithm, streamRate, 10));
                 threadR.start();
+                Thread threadS = new Thread(() -> readFromFile(streamSFile, "S", algorithm, streamRate, 20));
+                threadS.start();
 
                 if (!algorithm.equals("EHJ")) {
                     Thread threadT = new Thread(() -> readFromFile(streamTFile, "T", algorithm, streamRate, 15));
@@ -73,7 +71,15 @@ public class StreamingClient {
             while (sc.hasNextLine()) {
                 //clientSocket.setKeepAlive(true);
                 String[] values = sc.nextLine().split(" ");
-                String dataToSend = streamName + ":" + values[0] + ":" + values[1] + ":" + algorithm;
+                String dataToSend;
+
+                // Only used in SLICE JOIN of Distinct Attribute Join
+                if(streamName.equals("T") && algorithm.equals(Algorithm.SLICEJOIN)){
+                    dataToSend  = streamName + ":" + values[1] + ":" + values[0] + ":" + algorithm;
+                }
+                else{
+                    dataToSend = streamName + ":" + values[0] + ":" + values[1] + ":" + algorithm;
+                }
                 outToServer.writeBytes(dataToSend + '\n');
                 outToServer.flush();
                 /**
