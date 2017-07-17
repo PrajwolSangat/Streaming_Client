@@ -6,7 +6,7 @@ public class Main {
         // write your code here
         // Stream Rate is in number/seconds
         StreamingClient streamingClient = new StreamingClient();
-        streamingClient.startStreaming(ReadingStrategy.RANDOM, Algorithm.SLICEJOIN, 25);
+        streamingClient.startStreaming(ReadingStrategy.SEQUENTIAL, Algorithm.EHJOIN, 25);
         //test1();
     }
 

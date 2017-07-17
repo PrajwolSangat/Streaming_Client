@@ -25,21 +25,33 @@ public class StreamingClient {
 
     public void startStreaming(ReadingStrategy readingStrategy, Algorithm algorithm, Integer streamRate) {
         try {
-            if (readingStrategy.equals("RANDOM")) {
+            if (readingStrategy.equals(ReadingStrategy.RANDOM)) {
                 /**
                  * Reading Strategy : Random
                  */
+                Thread[] threadArray = new Thread[4];
                 Thread threadR = new Thread(() -> readFromFile(streamRFile, "R", algorithm, streamRate, 10));
-                threadR.start();
+                //threadR.start();
                 Thread threadS = new Thread(() -> readFromFile(streamSFile, "S", algorithm, streamRate, 20));
-                threadS.start();
+                //threadS.start();
 
-                if (!algorithm.equals("EHJ")) {
+                threadArray[0] = threadR;
+                threadArray[1] = threadS;
+                if (!algorithm.equals(Algorithm.EHJOIN)) {
                     Thread threadT = new Thread(() -> readFromFile(streamTFile, "T", algorithm, streamRate, 15));
-                    threadT.start();
+                    //threadT.start();
 
                     Thread threadU = new Thread(() -> readFromFile(streamUFile, "U", algorithm, streamRate, 18));
-                    threadU.start();
+                    //threadU.start();
+                    threadArray[2] = threadT;
+                    threadArray[3] = threadU;
+                }
+
+                // Ensures that all threads have completed the job.
+                for (Thread thread: threadArray
+                     ) {
+                    thread.start();
+                    thread.join();
                 }
 
             } else {
@@ -48,11 +60,15 @@ public class StreamingClient {
                  */
                 readFromFile(streamRFile, "R", algorithm, streamRate, 10);
                 readFromFile(streamSFile, "S", algorithm, streamRate, 10);
-                readFromFile(streamTFile, "T", algorithm, streamRate, 10);
-                readFromFile(streamUFile, "U", algorithm, streamRate, 10);
+                if (!algorithm.equals(Algorithm.EHJOIN)) {
+                    readFromFile(streamTFile, "T", algorithm, streamRate, 10);
+                    readFromFile(streamUFile, "U", algorithm, streamRate, 10);
+                }
             }
 
-
+            if (algorithm.equals(Algorithm.EHJOIN)) {
+                sendMessageToServer("R:CLEANUP:CLEANUP:"+ Algorithm.EHJOIN);
+            }
         } catch (Exception ex) {
             System.out.println(ex.toString());
         }
@@ -74,10 +90,9 @@ public class StreamingClient {
                 String dataToSend;
 
                 // Only used in SLICE JOIN of Distinct Attribute Join
-                if(streamName.equals("T") && algorithm.equals(Algorithm.SLICEJOIN)){
-                    dataToSend  = streamName + ":" + values[1] + ":" + values[0] + ":" + algorithm;
-                }
-                else{
+                if (streamName.equals("T") && algorithm.equals(Algorithm.SLICEJOIN)) {
+                    dataToSend = streamName + ":" + values[1] + ":" + values[0] + ":" + algorithm;
+                } else {
                     dataToSend = streamName + ":" + values[0] + ":" + values[1] + ":" + algorithm;
                 }
                 outToServer.writeBytes(dataToSend + '\n');
@@ -104,5 +119,21 @@ public class StreamingClient {
         } finally {
             sc.close();
         }
+    }
+
+    private void sendMessageToServer(String message){
+        try{
+            Socket clientSocket = new Socket("localhost", 4000);
+            OutputStream outputStream = clientSocket.getOutputStream();
+            DataOutputStream outToServer = new DataOutputStream(outputStream);
+            outToServer.writeBytes(message + '\n');
+            outToServer.flush();
+            clientSocket.close();
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
+
     }
 }
