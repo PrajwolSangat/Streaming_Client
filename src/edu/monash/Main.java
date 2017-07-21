@@ -6,14 +6,19 @@ public class Main {
         // write your code here
         // Stream Rate is in number/seconds
         StreamingClient streamingClient = new StreamingClient();
-        streamingClient.startStreaming(ReadingStrategy.SEQUENTIAL, Algorithm.EHJOIN, 25);
+        //streamingClient.startStreaming(ReadingStrategy.SEQUENTIAL, Algorithm.EHJOIN, 25);
         //test1();
+        streamingClient.setAlgorithm(Algorithm.EHJOIN);
+        boolean success = streamingClient.ETLData();
+        if (success) {
+           streamingClient.strategicReadingAndStreamingFromMemory("5:1:2:1");
+        }
     }
 
     /*
      * Test to verify using threads creates random streams
      */
-    public static void test1(){
+    public static void test1() {
         Thread t1 = new Thread(() -> threadTest(500));
         t1.start();
         Thread t2 = new Thread(() -> threadTest(200));
@@ -24,9 +29,9 @@ public class Main {
         t4.start();
     }
 
-    public static void threadTest(Integer upperEnd){
+    public static void threadTest(Integer upperEnd) {
         Integer sum = 0;
-        for(int i = 1; i< upperEnd; i++){
+        for (int i = 1; i < upperEnd; i++) {
             sum = sum + i;
             System.out.println(upperEnd + " " + sum);
         }
