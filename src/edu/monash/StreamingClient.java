@@ -20,10 +20,14 @@ public class StreamingClient {
 //    String streamSFile = dataDirectory + "sStream.txt";
 //    String streamTFile = dataDirectory + "tStream.txt";
 //    String streamUFile = dataDirectory + "uStream.txt";
-    String streamRFile = dataDirectory + "RStreamCommon.txt";
-    String streamSFile = dataDirectory + "SStreamCommon.txt";
-    String streamTFile = dataDirectory + "TStreamCommon.txt";
-    String streamUFile = dataDirectory + "UStreamCommon.txt";
+//    String streamRFile = dataDirectory + "RStreamCommon.txt";
+//    String streamSFile = dataDirectory + "SStreamCommon.txt";
+//    String streamTFile = dataDirectory + "TStreamCommon.txt";
+//    String streamUFile = dataDirectory + "UStreamCommon.txt";
+    String streamRFile = dataDirectory + "RStream.txt";
+    String streamSFile = dataDirectory + "SStream.txt";
+    String streamTFile = dataDirectory + "TStream.txt";
+    String streamUFile = dataDirectory + "UStream.txt";
 
     ArrayList<String> streamR = new ArrayList<>();
     ArrayList<String> streamS = new ArrayList<>();

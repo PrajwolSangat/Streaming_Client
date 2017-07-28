@@ -8,7 +8,7 @@ public class Main {
         StreamingClient streamingClient = new StreamingClient();
         //streamingClient.startStreaming(ReadingStrategy.SEQUENTIAL, Algorithm.EHJOIN, 25);
         //test1();
-        streamingClient.setAlgorithm(Algorithm.EHJOIN);
+        streamingClient.setAlgorithm(Algorithm.AMJOIN);
         boolean success = streamingClient.ETLData();
         if (success) {
            streamingClient.strategicReadingAndStreamingFromMemory("5:1:2:1");
