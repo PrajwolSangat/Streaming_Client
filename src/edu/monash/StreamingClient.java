@@ -16,18 +16,18 @@ public class StreamingClient {
 
     String dataDirectory = "TestData\\";
     //String dataDirectory = "C:\\Raw_Data_Source_For_Test\\StreamingAlgorithmTestData\\";
-    //    String streamRFile = dataDirectory + "rStream.txt";
-//    String streamSFile = dataDirectory + "sStream.txt";
-//    String streamTFile = dataDirectory + "tStream.txt";
-//    String streamUFile = dataDirectory + "uStream.txt";
+    String streamRFile = dataDirectory + "rStream.txt";
+    String streamSFile = dataDirectory + "sStream.txt";
+    String streamTFile = dataDirectory + "tStream.txt";
+    String streamUFile = dataDirectory + "uStream.txt";
 //    String streamRFile = dataDirectory + "RStreamCommon.txt";
 //    String streamSFile = dataDirectory + "SStreamCommon.txt";
 //    String streamTFile = dataDirectory + "TStreamCommon.txt";
 //    String streamUFile = dataDirectory + "UStreamCommon.txt";
-    String streamRFile = dataDirectory + "RStream.txt";
-    String streamSFile = dataDirectory + "SStream.txt";
-    String streamTFile = dataDirectory + "TStream.txt";
-    String streamUFile = dataDirectory + "UStream.txt";
+//    String streamRFile = dataDirectory + "RStream.txt";
+//    String streamSFile = dataDirectory + "SStream.txt";
+//    String streamTFile = dataDirectory + "TStream.txt";
+//    String streamUFile = dataDirectory + "UStream.txt";
 
     ArrayList<String> streamR = new ArrayList<>();
     ArrayList<String> streamS = new ArrayList<>();
@@ -35,7 +35,7 @@ public class StreamingClient {
     ArrayList<String> streamU = new ArrayList<>();
     private static String HOST_NAME = "localhost";
     private static Integer PORT = 4000;
-    Integer timeToSleep = 50;
+    Integer timeToSleep = 0;
     private Algorithm algorithm;
 
     public void setAlgorithm(Algorithm algorithm)
@@ -235,6 +235,8 @@ public class StreamingClient {
                 outToServer.writeBytes("R:CLEANUP:CLEANUP:" + algorithm + '\n');
                 outToServer.flush();
             }
+            outToServer.writeBytes("R:COMPLETE:COMPLETE:" + algorithm + '\n');
+            outToServer.flush();
             clientSocket.close();
         } catch (Exception ex) {
             ex.printStackTrace();

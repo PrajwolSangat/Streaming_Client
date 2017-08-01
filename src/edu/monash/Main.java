@@ -9,9 +9,10 @@ public class Main {
         //streamingClient.startStreaming(ReadingStrategy.SEQUENTIAL, Algorithm.EHJOIN, 25);
         //test1();
         streamingClient.setAlgorithm(Algorithm.AMJOIN);
+
         boolean success = streamingClient.ETLData();
         if (success) {
-           streamingClient.strategicReadingAndStreamingFromMemory("5:1:2:1");
+                streamingClient.strategicReadingAndStreamingFromMemory("5:3:1:2");
         }
     }
 
