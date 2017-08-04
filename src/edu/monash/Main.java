@@ -8,11 +8,11 @@ public class Main {
         StreamingClient streamingClient = new StreamingClient();
         //streamingClient.startStreaming(ReadingStrategy.SEQUENTIAL, Algorithm.EHJOIN, 25);
         //test1();
-        streamingClient.setAlgorithm(Algorithm.AMJOIN);
+        streamingClient.setAlgorithm(Algorithm.MJOIN);
 
         boolean success = streamingClient.ETLData();
         if (success) {
-                streamingClient.strategicReadingAndStreamingFromMemory("5:3:1:2");
+                streamingClient.strategicReadingAndStreamingFromMemory("1:1:1:1");
         }
     }
 
