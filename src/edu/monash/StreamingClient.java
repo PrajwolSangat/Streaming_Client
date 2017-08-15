@@ -97,15 +97,15 @@ public class StreamingClient {
     public boolean ETLData() {
         boolean success = false;
         try {
-            if (algorithm.equals(Algorithm.EHJOIN)) {
-                readFromFileAndStoreInMemory(streamSFile, "R", algorithm);
-                readFromFileAndStoreInMemory(streamRFile, "S", algorithm);
-            } else {
+           // if (algorithm.equals(Algorithm.EHJOIN)) {
+            //    readFromFileAndStoreInMemory(streamSFile, "R", algorithm);
+            //    readFromFileAndStoreInMemory(streamRFile, "S", algorithm);
+            //} else {
                 readFromFileAndStoreInMemory(streamRFile, "R", algorithm);
                 readFromFileAndStoreInMemory(streamSFile, "S", algorithm);
                 readFromFileAndStoreInMemory(streamTFile, "T", algorithm);
                 readFromFileAndStoreInMemory(streamUFile, "U", algorithm);
-            }
+            //}
             success = true;
         } catch (Exception ex) {
             System.out.println(ex.toString());
