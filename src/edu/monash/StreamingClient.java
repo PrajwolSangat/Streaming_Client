@@ -20,27 +20,78 @@ public class StreamingClient {
     String streamSFile = dataDirectory + "sStream.txt";
     String streamTFile = dataDirectory + "tStream.txt";
     String streamUFile = dataDirectory + "uStream.txt";
+    String streamFile = ""; String streamLetter = "";
+    public StreamingClient() {
+    }
+    public StreamingClient(String dataDirectory, String streamLetter) {
+        this.dataDirectory = dataDirectory;
+        this.streamLetter = streamLetter;
+        System.out.println(this.dataDirectory+ " : "+dataDirectory);
+        streamFile = dataDirectory + streamLetter + "Stream.txt";
+        streamRFile = dataDirectory + "rStream.txt";
+        streamSFile = dataDirectory + "sStream.txt";
+        streamTFile = dataDirectory + "tStream.txt";
+        streamUFile = dataDirectory + "uStream.txt";
+    }
 
+    ArrayList<String> streamAL = new ArrayList<>();
     ArrayList<String> streamR = new ArrayList<>();
     ArrayList<String> streamS = new ArrayList<>();
     ArrayList<String> streamT = new ArrayList<>();
     ArrayList<String> streamU = new ArrayList<>();
-    private static String HOST_NAME = "localhost";
+//    private static String HOST_NAME = "localhost";
+    private static String HOST_NAME = "118.138.244.151";
     private static Integer PORT = 4000;
     Integer timeToSleep = 0;
 
     public boolean ETLData() {
         boolean success = false;
         try {
-            readFromFileAndStoreInMemory(streamRFile, "R");
-            readFromFileAndStoreInMemory(streamSFile, "S");
-            readFromFileAndStoreInMemory(streamTFile, "T");
-            readFromFileAndStoreInMemory(streamUFile, "U");
+            if (streamLetter.equals("")) {
+                readFromFileAndStoreInMemory(streamRFile, "R");
+                readFromFileAndStoreInMemory(streamSFile, "S");
+                readFromFileAndStoreInMemory(streamTFile, "T");
+                readFromFileAndStoreInMemory(streamUFile, "U");
+            } else {
+                readFromFileAndStoreInMemory(streamFile, streamLetter.toUpperCase());
+            }
             success = true;
         } catch (Exception ex) {
             System.out.println(ex.toString());
         }
         return success;
+    }
+
+    public boolean networkStreamingFromMemory(String rate) {
+        boolean streamingComplete = false;
+        try {
+            System.out.println("Rate:"+rate);
+            Socket clientSocket = new Socket(HOST_NAME, PORT);
+            OutputStream outputStream = clientSocket.getOutputStream();
+            DataOutputStream outToServer = new DataOutputStream(outputStream);
+            long time0 = System.currentTimeMillis();
+            for (int i = 0; i < streamAL.size(); i++) {
+                outToServer.writeBytes(streamAL.get(i) + '\n');
+                if (rate!=null && i%Integer.valueOf(rate)==0) {
+                    outToServer.flush();
+                    long elapsedTime = System.currentTimeMillis()-time0;
+                    System.out.println(streamLetter.toUpperCase()+" Elapsed "+elapsedTime+" TIME:"+System.currentTimeMillis());
+                    if (elapsedTime < 1000)
+                        Thread.sleep(1000-elapsedTime);
+                    time0 = System.currentTimeMillis();
+                }
+            }
+            System.out.println(streamLetter.toUpperCase()+" Stream Completed.");
+            streamingComplete = true;
+            if (streamLetter.toUpperCase().equals("R"))
+                outToServer.writeBytes(streamLetter.toUpperCase()+":COMPLETE:COMPLETE"+'\n');
+            outToServer.flush();
+            clientSocket.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return streamingComplete;
     }
 
     public boolean strategicReadingAndStreamingFromMemory(String readingStrategy) {
@@ -71,14 +122,14 @@ public class StreamingClient {
                             // System.out.println(Utils.getValueFromArrayList(streamR, i));
                             outToServer.writeBytes(streamR.get(i) + '\n');
                             outToServer.flush();
-                            Thread.sleep(timeToSleep);
+//                            Thread.sleep(timeToSleep);
                             countR = i + 1;
 
                         } else {
                             // System.out.println(Utils.getValueFromArrayList(streamR, i));
                             outToServer.writeBytes(streamR.get(i) + '\n');
                             outToServer.flush();
-                            Thread.sleep(timeToSleep);
+//                            Thread.sleep(timeToSleep);
                             break;
                         }
 
@@ -96,13 +147,13 @@ public class StreamingClient {
                             // System.out.println(Utils.getValueFromArrayList(streamS, i));
                             outToServer.writeBytes(streamS.get(i) + '\n');
                             outToServer.flush();
-                            Thread.sleep(timeToSleep);
+//                            Thread.sleep(timeToSleep);
                             countS = i + 1;
                         } else {
                             // System.out.println(Utils.getValueFromArrayList(streamS, i));
                             outToServer.writeBytes(streamS.get(i) + '\n');
                             outToServer.flush();
-                            Thread.sleep(timeToSleep);
+//                            Thread.sleep(timeToSleep);
                             break;
                         }
                     }
@@ -118,13 +169,13 @@ public class StreamingClient {
                             // System.out.println(Utils.getValueFromArrayList(streamT, i));
                             outToServer.writeBytes(streamT.get(i) + '\n');
                             outToServer.flush();
-                            Thread.sleep(timeToSleep);
+//                            Thread.sleep(timeToSleep);
                             countT = i + 1;
                         } else {
                             // System.out.println(Utils.getValueFromArrayList(streamT, i));
                             outToServer.writeBytes(streamT.get(i) + '\n');
                             outToServer.flush();
-                            Thread.sleep(timeToSleep);
+//                            Thread.sleep(timeToSleep);
                             break;
                         }
                     }
@@ -141,13 +192,13 @@ public class StreamingClient {
                             // System.out.println(Utils.getValueFromArrayList(streamU, i));
                             outToServer.writeBytes(streamU.get(i) + '\n');
                             outToServer.flush();
-                            Thread.sleep(timeToSleep);
+//                            Thread.sleep(timeToSleep);
                             countU = i + 1;
                         } else {
                             // System.out.println(Utils.getValueFromArrayList(streamU, i));
                             outToServer.writeBytes(streamU.get(i) + '\n');
                             outToServer.flush();
-                            Thread.sleep(timeToSleep);
+//                            Thread.sleep(timeToSleep);
                             break;
                         }
                     }
@@ -179,19 +230,23 @@ public class StreamingClient {
             while (sc.hasNextLine()) {
                 String[] values = sc.nextLine().split(" ");
                 String dataToSend = streamName + ":" + values[0] + ":" + values[1];
-                switch (streamName) {
-                    case "R":
-                        streamR.add(dataToSend);
-                        break;
-                    case "S":
-                        streamS.add(dataToSend);
-                        break;
-                    case "T":
-                        streamT.add(dataToSend);
-                        break;
-                    case "U":
-                        streamU.add(dataToSend);
-                        break;
+                if (streamLetter.equals("")) {
+                    switch (streamName) {
+                        case "R":
+                            streamR.add(dataToSend);
+                            break;
+                        case "S":
+                            streamS.add(dataToSend);
+                            break;
+                        case "T":
+                            streamT.add(dataToSend);
+                            break;
+                        case "U":
+                            streamU.add(dataToSend);
+                            break;
+                    }
+                } else {
+                    streamAL.add(dataToSend);
                 }
             }
             success = true;
