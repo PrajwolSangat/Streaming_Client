@@ -20,18 +20,26 @@ public class StreamingClient {
     String streamSFile = dataDirectory + "sStream.txt";
     String streamTFile = dataDirectory + "tStream.txt";
     String streamUFile = dataDirectory + "uStream.txt";
-    String streamFile = ""; String streamLetter = "";
+    String streamVFile = dataDirectory + "vStream.txt";
+    String streamFile = "";
+    String streamLetter = "";
+    private static String HOST_NAME = "localhost";
+    private static Integer PORT = 4000;
+
     public StreamingClient() {
     }
+
     public StreamingClient(String dataDirectory, String streamLetter) {
         this.dataDirectory = dataDirectory;
         this.streamLetter = streamLetter;
-        System.out.println(this.dataDirectory+ " : "+dataDirectory);
+        System.out.println("Data Directory: " + dataDirectory);
+        System.out.println("Sending data to: " + HOST_NAME + ":" + PORT);
         streamFile = dataDirectory + streamLetter + "Stream.txt";
         streamRFile = dataDirectory + "rStream.txt";
         streamSFile = dataDirectory + "sStream.txt";
         streamTFile = dataDirectory + "tStream.txt";
         streamUFile = dataDirectory + "uStream.txt";
+        streamVFile = dataDirectory + "vStream.txt";
     }
 
     ArrayList<String> streamAL = new ArrayList<>();
@@ -39,9 +47,9 @@ public class StreamingClient {
     ArrayList<String> streamS = new ArrayList<>();
     ArrayList<String> streamT = new ArrayList<>();
     ArrayList<String> streamU = new ArrayList<>();
+    ArrayList<String> streamV = new ArrayList<>();
 //    private static String HOST_NAME = "localhost";
-    private static String HOST_NAME = "118.138.244.151";
-    private static Integer PORT = 4000;
+
     Integer timeToSleep = 0;
 
     public boolean ETLData() {
@@ -52,6 +60,7 @@ public class StreamingClient {
                 readFromFileAndStoreInMemory(streamSFile, "S");
                 readFromFileAndStoreInMemory(streamTFile, "T");
                 readFromFileAndStoreInMemory(streamUFile, "U");
+                readFromFileAndStoreInMemory(streamVFile, "V");
             } else {
                 readFromFileAndStoreInMemory(streamFile, streamLetter.toUpperCase());
             }
@@ -65,26 +74,26 @@ public class StreamingClient {
     public boolean networkStreamingFromMemory(String rate) {
         boolean streamingComplete = false;
         try {
-            System.out.println("Rate:"+rate);
+            System.out.println("Rate:" + rate);
             Socket clientSocket = new Socket(HOST_NAME, PORT);
             OutputStream outputStream = clientSocket.getOutputStream();
             DataOutputStream outToServer = new DataOutputStream(outputStream);
             long time0 = System.currentTimeMillis();
             for (int i = 0; i < streamAL.size(); i++) {
                 outToServer.writeBytes(streamAL.get(i) + '\n');
-                if (rate!=null && i%Integer.valueOf(rate)==0) {
+                if (rate != null && i % Integer.valueOf(rate) == 0) {
                     outToServer.flush();
-                    long elapsedTime = System.currentTimeMillis()-time0;
-                    System.out.println(streamLetter.toUpperCase()+" Elapsed "+elapsedTime+" TIME:"+System.currentTimeMillis());
+                    long elapsedTime = System.currentTimeMillis() - time0;
+                    System.out.println(streamLetter.toUpperCase() + " Elapsed " + elapsedTime + " TIME:" + System.currentTimeMillis());
                     if (elapsedTime < 1000)
-                        Thread.sleep(1000-elapsedTime);
+                        Thread.sleep(1000 - elapsedTime);
                     time0 = System.currentTimeMillis();
                 }
             }
-            System.out.println(streamLetter.toUpperCase()+" Stream Completed.");
+            System.out.println(streamLetter.toUpperCase() + " Stream Completed.");
             streamingComplete = true;
             if (streamLetter.toUpperCase().equals("R"))
-                outToServer.writeBytes(streamLetter.toUpperCase()+":COMPLETE:COMPLETE"+'\n');
+            outToServer.writeBytes(streamLetter.toUpperCase() + ":COMPLETE:COMPLETE" + '\n');
             outToServer.flush();
             clientSocket.close();
         } catch (Exception ex) {
@@ -102,20 +111,23 @@ public class StreamingClient {
             Integer denominatorS = Integer.parseInt(_readingStrategy[1]);
             Integer denominatorT = Integer.parseInt(_readingStrategy[2]);
             Integer denominatorU = Integer.parseInt(_readingStrategy[3]);
+            Integer denominatorV = Integer.parseInt(_readingStrategy[4]);
             Integer countR = 0;
             Integer countS = 0;
             Integer countT = 0;
             Integer countU = 0;
+            Integer countV = 0;
 
             boolean rStreamComplete = false;
             boolean sStreamComplete = false;
             boolean tStreamComplete = false;
             boolean uStreamComplete = false;
+            boolean vStreamComplete = false;
             Socket clientSocket = new Socket(HOST_NAME, PORT);
             OutputStream outputStream = clientSocket.getOutputStream();
             DataOutputStream outToServer = new DataOutputStream(outputStream);
 
-            while (!rStreamComplete || !sStreamComplete || !tStreamComplete || !uStreamComplete) {
+            while (!rStreamComplete || !sStreamComplete || !tStreamComplete || !uStreamComplete || !vStreamComplete) {
                 if (!rStreamComplete) {
                     for (int i = countR; i < streamR.size(); i++) {
                         if (i == 0 || i % denominatorR != 0) {
@@ -208,10 +220,32 @@ public class StreamingClient {
                         System.out.println("U Stream Completed.");
                     }
                 }
+                if (!vStreamComplete) {
+                    for (int i = countV; i < streamV.size(); i++) {
+                        if (i == 0 || i % denominatorV != 0) {
+                            // System.out.println(Utils.getValueFromArrayList(streamU, i));
+                            outToServer.writeBytes(streamV.get(i) + '\n');
+                            outToServer.flush();
+//                            Thread.sleep(timeToSleep);
+                            countV = i + 1;
+                        } else {
+                            // System.out.println(Utils.getValueFromArrayList(streamU, i));
+                            outToServer.writeBytes(streamV.get(i) + '\n');
+                            outToServer.flush();
+//                            Thread.sleep(timeToSleep);
+                            break;
+                        }
+                    }
+                    countV++;
+                    if (streamV.size() == 0 || countV >= streamV.size()) {
+                        vStreamComplete = true;
+                        System.out.println("V Stream Completed.");
+                    }
+                }
             }
             streamingComplete = true;
             System.out.println("Streaming Complete.");
-            outToServer.writeBytes("R:COMPLETE:COMPLETE"+ '\n');
+            outToServer.writeBytes("R:COMPLETE:COMPLETE" + '\n');
             outToServer.flush();
             clientSocket.close();
         } catch (Exception ex) {
@@ -243,6 +277,9 @@ public class StreamingClient {
                             break;
                         case "U":
                             streamU.add(dataToSend);
+                            break;
+                        case "V":
+                            streamV.add(dataToSend);
                             break;
                     }
                 } else {
